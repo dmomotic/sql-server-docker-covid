@@ -70,11 +70,21 @@ const reader = require("./utils/reader");
       );
     }
 
-    //Inserting into DailyRecord
+    //Inserting into DailyRecord and Tests_Unit
     const id_location = db.getLocationId(name);
     if ("data" in objectFromIsoCode) {
       for (const record of objectFromIsoCode.data) {
-        Object.assign(record, { id_location });
+
+        //Inserting into Tests_Unit
+        if ("tests_units" in record && !db.hasTestUnit(record.tests_units)) {
+          await db.insertTests_Unit(record.tests_units);
+        }
+
+        const id_tests_units = db.getTestUnitId(record.tests_units);
+        Object.assign(record, { id_location, id_tests_units });
+
+        //Inserting into DailyRecord
+        await db.insertDailyRecord(record);
       }
     }
   }

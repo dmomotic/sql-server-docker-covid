@@ -296,6 +296,7 @@ module.exports = {
   insertContinent,
   insertLocation,
   insertTests_Unit,
+  insertDailyRecord,
   getContinentId,
   getIsoCodetId,
   getLocationId,
