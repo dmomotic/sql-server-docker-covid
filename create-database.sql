@@ -21,7 +21,7 @@ CREATE TABLE Location (
 	id_iso_code INT NOT NULL,
 	id_continent Int,
 	name VARCHAR(40) NOT NULL,
-	population INT,
+	population BIGINT,
 	population_density FLOAT,
 	median_age FLOAT,
 	age_65_older FLOAT,
@@ -36,8 +36,8 @@ CREATE TABLE Location (
 	hospital_beds_per_thousand FLOAT,
 	life_expenctancy FLOAT,
 	human_development_index FLOAT,
-	CONSTRAINT fk_iso_code FOREIGN KEY (id_iso_code) REFERENCES ISO_Code(id_iso_code),
-	CONSTRAINT fk_continent FOREIGN KEY (id_continent) REFERENCES Continent(id_continent)
+	CONSTRAINT fk_iso_code FOREIGN KEY (id_iso_code) REFERENCES ISO_Code(id_iso_code) ON DELETE CASCADE,
+	CONSTRAINT fk_continent FOREIGN KEY (id_continent) REFERENCES Continent(id_continent) ON DELETE CASCADE
 );
 GO
 
@@ -89,16 +89,35 @@ CREATE TABLE DailyRecord (
 	people_fully_vaccinated_per_hundred FLOAT,
 	new_vaccinations_smoothed_per_million INT,
 	stringency_index FLOAT,
-  CONSTRAINT fk_location FOREIGN KEY (id_location) REFERENCES Location(id_location),
-	CONSTRAINT fk_tests_units FOREIGN KEY (id_tests_units) REFERENCES Tests_Unit(id_tests_unit)
+  CONSTRAINT fk_location FOREIGN KEY (id_location) REFERENCES Location(id_location) ON DELETE CASCADE,
+	CONSTRAINT fk_tests_units FOREIGN KEY (id_tests_units) REFERENCES Tests_Unit(id_tests_unit) ON DELETE CASCADE
 );
 GO
 
 --Procedure to truncate all tables
 CREATE OR ALTER PROCEDURE TruncateTables
 AS
-BEGIN 
-	TRUNCATE TABLE ISO_Code
+BEGIN
+	IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'DailyRecord')
+	BEGIN
+		DELETE FROM DailyRecord;
+	END 
+	IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tests_Unit')
+	BEGIN
+		DELETE FROM Tests_Unit;
+	END 
+	IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Location')
+	BEGIN
+		DELETE FROM Location;
+	END 
+	IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Continent')
+	BEGIN
+		DELETE FROM Continent;
+	END 
+	IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ISO_Code')
+	BEGIN
+		DELETE FROM ISO_Code;
+	END
 END
 GO
 
@@ -109,7 +128,8 @@ AS
 BEGIN 
 	IF NOT EXISTS(SELECT * FROM ISO_Code WHERE code = @code)
 	BEGIN
-		INSERT INTO ISO_Code (code) VALUES (@code)
+		INSERT INTO ISO_Code (code) VALUES (@code);
+		SELECT SCOPE_IDENTITY() as id;
 	END
 END
 GO
@@ -121,7 +141,8 @@ AS
 BEGIN 
 	IF NOT EXISTS(SELECT * FROM Continent WHERE name = @name)
 	BEGIN
-		INSERT INTO Continent (name) VALUES (@name)
+		INSERT INTO Continent (name) VALUES (@name);
+		SELECT SCOPE_IDENTITY() as id;
 	END
 END
 GO
@@ -129,9 +150,9 @@ GO
 --Procedure to insert into Location
 CREATE OR ALTER PROCEDURE InsertLocation
 @id_iso_code INT,
-@id_continent INT,
+@id_continent INT = NULL,
 @name VARCHAR(40),
-@population INT = NULL,
+@population BIGINT = NULL,
 @population_density FLOAT = NULL,
 @median_age FLOAT = NULL,
 @age_65_older FLOAT = NULL,
@@ -150,6 +171,7 @@ AS
 BEGIN 
 	INSERT INTO Location (id_iso_code,id_continent,name,population,population_density,median_age,age_65_older,age_70_older,gdp_per_capita,extreme_poverty,cardiovasc_death_rate,diabetes_prevalence,female_smokers,male_smokers,handwahing_facilities,hospital_beds_per_thousand,life_expenctancy,human_development_index) 
 	VALUES (@id_iso_code,@id_continent,@name,@population,@population_density,@median_age,@age_65_older,@age_70_older,@gdp_per_capita,@extreme_poverty,@cardiovasc_death_rate,@diabetes_prevalence,@female_smokers,@male_smokers,@handwahing_facilities,@hospital_beds_per_thousand,@life_expenctancy,@human_development_index)
+	SELECT id_location AS id, id_iso_code FROM Location WHERE id_iso_code = @id_iso_code AND name = @name;
 END
 GO
 
@@ -161,6 +183,7 @@ BEGIN
 	IF NOT EXISTS(SELECT * FROM Tests_Unit WHERE name = @name)
 	BEGIN
 		INSERT INTO Tests_Unit (name) VALUES (@name)
+		SELECT SCOPE_IDENTITY() as id;
 	END
 END
 GO
