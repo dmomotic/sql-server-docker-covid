@@ -17,9 +17,14 @@ const getDataFromCovidJsonFile = () => data;
 //Returns array of keys (iso_code)
 const getArrayOfIsoCodes = () => Object.keys(data);
 
+const getObjectFromIsoCode = (code) => {
+  return data != null ? data[code] : null;
+}
+
 module.exports = {
   readDataFromCovidJsonFile,
   getDataFromCovidJsonFile,
-  getArrayOfIsoCodes
+  getArrayOfIsoCodes,
+  getObjectFromIsoCode,
 };
 
