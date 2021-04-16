@@ -51,7 +51,7 @@ CREATE TABLE DailyRecord (
 	id_review INT PRIMARY KEY IDENTITY (1,1) NOT NULL,
 	id_location INT NOT NULL,
 	date DATETIME,
-	8 INT,
+	total_cases INT,
 	new_cases INT,
 	new_cases_smoothed FLOAT,
 	total_deaths INT,
