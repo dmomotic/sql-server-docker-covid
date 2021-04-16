@@ -84,9 +84,12 @@ const reader = require("./utils/reader");
         Object.assign(record, { id_location, id_tests_units });
 
         //Inserting into DailyRecord
-        await db.insertDailyRecord(record);
+        db.insertDailyRecord(record);
       }
     }
   }
-  await db.disconnect();
 })();
+
+process.on("exit", async (code) => {
+  await db.disconnect();
+});

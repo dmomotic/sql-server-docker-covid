@@ -15,7 +15,10 @@ const readDataFromCovidJsonFile = () => {
 const getDataFromCovidJsonFile = () => data;
 
 //Returns array of keys (iso_code)
-const getArrayOfIsoCodes = () => Object.keys(data);
+const getArrayOfIsoCodes = () => {
+  const keys = Object.keys(data);
+  return keys.filter(key => !key.includes('OWID'));
+};
 
 const getObjectFromIsoCode = (code) => {
   return data != null ? data[code] : null;
