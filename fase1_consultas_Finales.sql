@@ -134,6 +134,9 @@ select t.name table_name, sc.name column_name, sc.collation_name from sys.column
 inner join sys.tables t on sc.object_id=t.object_id
 where t.name='Location' or t.name='DailyRecord' or t.name='Continent' or t.name='ISO_Code' or t.name='Tests_Unit'
 
+SELECT name, collation_name DbCollation
+FROM sys.databases
+
 /* BACK UP */
 -- El nombre del fichero tendrá este Formato DB_YYYYDDMM.BAK 
 DECLARE @name VARCHAR(50) -- Nombre de la Base de Datos
